@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:github_may4/user1.dart';
+import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'quizpage.dart';
-import 'package:hive/hive.dart';
 
 Box box;
 void main() async {
@@ -12,11 +12,9 @@ void main() async {
   Hive
     ..init(dir.path)
     ..registerAdapter(UscoresAdapter());
-  box = await Hive.openBox('players');
+  box = await Hive.openBox('users');
   runApp(MyApp());
 }
-
-class Scoreboard {}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -160,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                                 color: Colors.black),
                           ),
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ),

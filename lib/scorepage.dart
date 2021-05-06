@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'ListofScores.dart';
+import 'package:github_may4/user1.dart';
+import 'package:hive/hive.dart';
+import 'Models/getsample.dart';
+import 'Models/signup.dart';
 import 'main.dart';
 import 'quizpage.dart';
 
@@ -21,18 +24,20 @@ class TotalScore extends StatefulWidget {
 }
 
 class _TotalScoreState extends State<TotalScore> {
-  bool result;
   get totalScore => quiz.questions.length;
   String password;
   String username;
   int score;
   String conscore;
+  StreamSubscription<DataConnectionStatus> internet;
   _TotalScoreState(this.username, this.score, this.password);
 
   @override
   void initState() {
-    conscore = score.toString();
-    //signup(username, password, conscore);
+    checkInternet();
+    checkInternetConnectivity();
+    print(box.length);
+
     super.initState();
   }
 
@@ -41,15 +46,22 @@ class _TotalScoreState extends State<TotalScore> {
     super.dispose();
   }
 
-  signup(username, password, score) async {
-    var url = 'https://flutter-database.herokuapp.com/users';
-    var response = await http.post(url,
-        body: {"username": username, "password": password, "score": score});
-    print(response.body);
+  checkInternetConnectivity() async {
+    box = await Hive.openBox('players');
+    bool result = await DataConnectionChecker().hasConnection;
+    if (result == true) {
+      conscore = score.toString();
+      signup(username, password, conscore);
+    } else {
+      saveUser();
+    }
+  }
+
+  saveUser() async {
+    box.add(Uscores(username, score, password));
   }
 
   //Check Internet Connection
-  StreamSubscription<DataConnectionStatus> internet;
   checkInternet() async {
     internet = DataConnectionChecker().onStatusChange.listen((status) {
       switch (status) {
@@ -59,7 +71,7 @@ class _TotalScoreState extends State<TotalScore> {
             if (box.length > 0) {
               for (int i = 0; i < box.length; i++) {
                 var users = box.getAt(i);
-                signup(users.username, users.password, users.conscore);
+                signup(users.username, users.password, users.score);
                 box.deleteAt(i);
               }
               Fluttertoast.showToast(
@@ -139,9 +151,7 @@ class _TotalScoreState extends State<TotalScore> {
                   questionNumber = 0;
                   finalScore = 0;
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Math(username: username)));
+                      context, MaterialPageRoute(builder: (context) => Math()));
                 },
                 child: Container(
                   padding: const EdgeInsets.all(5),
@@ -164,10 +174,10 @@ class _TotalScoreState extends State<TotalScore> {
               ),
               GestureDetector(
                 onTap: () async {
-                  result = await DataConnectionChecker().hasConnection;
+                  bool result = await DataConnectionChecker().hasConnection;
                   if (result == true) {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => StoreData()));
+                        MaterialPageRoute(builder: (context) => Users()));
                   } else {
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()

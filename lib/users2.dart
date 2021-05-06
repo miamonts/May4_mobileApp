@@ -17,20 +17,20 @@ class UscoresAdapter extends TypeAdapter<Uscores> {
     return Uscores(
       fields[0] as String,
       fields[1] as int,
-      //fields[2] as String,
+      fields[2] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Uscores obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
-      ..write(obj.score);
-    //..writeByte(2)
-    //..write(obj.password);
+      ..write(obj.score)
+      ..writeByte(2)
+      ..write(obj.password);
   }
 
   @override

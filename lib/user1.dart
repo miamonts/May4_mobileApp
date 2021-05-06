@@ -10,12 +10,8 @@ class Uscores {
   @HiveField(1)
   int score;
 
-  // @HiveField(2)
-  // String password;
+  @HiveField(2)
+  String password;
 
-  Uscores(
-    this.username,
-    this.score,
-  );
-  //this.password
+  Uscores(this.username, this.score, this.password);
 }
